@@ -61,39 +61,38 @@ def tokenize(text: str) -> set[str]:
 
 
 def main():
-    # Этап 1: извлекаем текст из HTML и собираем уникальные токены
     html_files = sorted((BASE_DIR / "../pages").glob("*.html"))
     print(f"Found {len(html_files)} HTML files")
 
-    all_tokens: set[str] = set()
+    tokens_dir = BASE_DIR / "tokens"
+    lemmas_dir = BASE_DIR / "lemmas"
+    tokens_dir.mkdir(exist_ok=True)
+    lemmas_dir.mkdir(exist_ok=True)
+
     for path in html_files:
+        doc_id = path.stem  # e.g. "0001"
         html = path.read_text(encoding="utf-8", errors="replace")
-        all_tokens.update(tokenize(extract_text(html)))
+        tokens = tokenize(extract_text(html))
 
-    sorted_tokens = sorted(all_tokens)
-    print(f"Total unique tokens: {len(sorted_tokens)}")
+        sorted_tokens = sorted(tokens)
+        (tokens_dir / f"{doc_id}.txt").write_text(
+            "\n".join(sorted_tokens) + "\n", encoding="utf-8"
+        )
 
-    # Этап 2: записываем токены в tokens.txt
-    (BASE_DIR / "tokens.txt").write_text(
-        "\n".join(sorted_tokens) + "\n", encoding="utf-8"
-    )
+        lemmas: dict[str, set[str]] = {}
+        for token in sorted_tokens:
+            lemma = morph.parse(token)[0].normal_form
+            lemmas.setdefault(lemma, set()).add(token)
 
-    # Этап 3: лемматизация - группируем токены по нормальной форме (pymorphy3)
-    lemmas: dict[str, set[str]] = {}
-    for token in sorted_tokens:
-        lemma = morph.parse(token)[0].normal_form
-        lemmas.setdefault(lemma, set()).add(token)
+        lines = [
+            f"{lemma} {' '.join(sorted(lemmas[lemma]))}"
+            for lemma in sorted(lemmas)
+        ]
+        (lemmas_dir / f"{doc_id}.txt").write_text(
+            "\n".join(lines) + "\n", encoding="utf-8"
+        )
 
-    # Записываем в формате: <лемма> <токен1> <токен2> ... <токенN>
-    lines = [
-        f"{lemma} {' '.join(sorted(lemmas[lemma]))}"
-        for lemma in sorted(lemmas)
-    ]
-    (BASE_DIR / "lemmas.txt").write_text(
-        "\n".join(lines) + "\n", encoding="utf-8"
-    )
-
-    print(f"Total unique lemmas: {len(lemmas)}")
+    print(f"Done: {len(html_files)} files -> tokens/ and lemmas/")
 
 
 if __name__ == "__main__":
