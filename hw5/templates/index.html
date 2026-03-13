@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рецептов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #06101c;
+            --surface:  #0c1d2e;
+            --border:   #152336;
+            --teal:     #1a9994;
+            --teal-dim: #12706d;
+            --text:     #c8d8e8;
+            --muted:    #5a7a96;
+            --link:     #3bbfbb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { overflow-y: scroll; } /* всегда показываем скроллбар, нет сдвига */
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ---- Header ---- */
+        .header {
+            text-align: center;
+            padding: 72px 0 44px;
+            transition: padding .35s ease;
+        }
+        .header.compact { padding: 28px 0 20px; }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #e8f4f4;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+        .header p {
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: .3px;
+        }
+
+        /* ---- Search row ---- */
+        .search-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .search-row input {
+            flex: 1;
+            padding: 13px 22px;
+            font-size: 15px;
+            font-family: 'Nunito', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 9999px;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .search-row input::placeholder { color: var(--muted); }
+        .search-row input:focus { border-color: var(--teal); }
+
+        .search-row button {
+            padding: 13px 26px;
+            font-size: 15px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background .2s;
+            white-space: nowrap;
+        }
+        .search-row button:hover { background: var(--teal-dim); }
+
+        /* ---- Limit row ---- */
+        .limit-row {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-bottom: 28px;
+        }
+
+        .limit-row span {
+            font-size: 12px;
+            color: var(--muted);
+            align-self: center;
+            margin-right: 2px;
+        }
+
+        .lbtn {
+            padding: 4px 12px;
+            font-size: 12px;
+            font-family: 'Nunito', sans-serif;
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .lbtn:hover { border-color: var(--teal); color: var(--teal); }
+        .lbtn.active {
+            background: var(--teal);
+            border-color: var(--teal);
+            color: #fff;
+        }
+
+        /* ---- Status bar ---- */
+        .statusbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ---- Results ---- */
+        .results { display: flex; flex-direction: column; gap: 10px; }
+
+        .result {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 22px;
+            transition: border-color .2s, transform .15s;
+            animation: fadeIn .25s ease both;
+        }
+        .result:hover {
+            border-color: var(--teal-dim);
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result:nth-child(1)  { animation-delay: .03s; }
+        .result:nth-child(2)  { animation-delay: .06s; }
+        .result:nth-child(3)  { animation-delay: .09s; }
+        .result:nth-child(4)  { animation-delay: .12s; }
+        .result:nth-child(5)  { animation-delay: .15s; }
+        .result:nth-child(6)  { animation-delay: .18s; }
+        .result:nth-child(7)  { animation-delay: .21s; }
+        .result:nth-child(8)  { animation-delay: .24s; }
+        .result:nth-child(9)  { animation-delay: .27s; }
+        .result:nth-child(10) { animation-delay: .30s; }
+
+        .result-title a {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--link);
+            text-decoration: none;
+            line-height: 1.4;
+        }
+        .result-title a:hover { text-decoration: underline; }
+
+        .result-snippet {
+            font-size: 14px;
+            color: #7a9ab8;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .result-snippet mark {
+            background: transparent;
+            color: #3bbfbb;
+            font-weight: 600;
+        }
+
+        .result-score {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        /* ---- States ---- */
+        .empty, .loading {
+            text-align: center;
+            padding: 50px 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .loading { color: var(--teal); }
+
+        @media (max-width: 480px) {
+            .search-row { flex-direction: column; }
+            .limit-row { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="header" id="header">
+        <h1>Поиск рецептов</h1>
+        <p>Векторный поиск</p>
+    </div>
+
+    <div class="search-row">
+        <input type="text" id="query" placeholder="курица с рисом" autocomplete="off" autofocus>
+        <button onclick="doSearch()">Найти</button>
+    </div>
+
+    <div class="limit-row">
+        <span>Результатов:</span>
+        <button class="lbtn active" data-l="10">10</button>
+        <button class="lbtn" data-l="15">15</button>
+        <button class="lbtn" data-l="30">30</button>
+        <button class="lbtn" data-l="0">Все</button>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+<script>
+    const input  = document.getElementById('query');
+    const output = document.getElementById('output');
+    const header = document.getElementById('header');
+    let limit = 10;
+    let pending = null;
+
+    // Кнопки выбора количества
+    document.querySelectorAll('.lbtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.lbtn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            limit = parseInt(btn.dataset.l);
+            if (input.value.trim()) doSearch();
+        });
+    });
+
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    // Восстановление из URL при загрузке
+    const initQ = new URLSearchParams(location.search).get('q');
+    const initL = new URLSearchParams(location.search).get('limit');
+    if (initL) {
+        limit = parseInt(initL);
+        document.querySelectorAll('.lbtn').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.l) === limit);
+        });
+    }
+    if (initQ) { input.value = initQ; doSearch(); }
+
+    async function doSearch() {
+        const q = input.value.trim();
+        if (!q) return;
+
+        const params = new URLSearchParams({ q });
+        if (limit !== 10) params.set('limit', limit);
+        history.pushState(null, '', '/?' + params);
+
+        header.classList.add('compact');
+        output.innerHTML = '<div class="loading">Поиск...</div>';
+
+        if (pending) pending.abort();
+        const ac = new AbortController();
+        pending = ac;
+
+        try {
+            const res  = await fetch('/api/search?q=' + encodeURIComponent(q) + '&limit=' + limit, { signal: ac.signal });
+            const data = await res.json();
+            render(data);
+        } catch(e) {
+            if (e.name !== 'AbortError')
+                output.innerHTML = '<div class="empty">Ошибка запроса</div>';
+        }
+    }
+
+    function render(data) {
+        if (!data.count) {
+            output.innerHTML = '<div class="empty">По запросу «' + esc(data.query) + '» ничего не найдено</div>';
+            return;
+        }
+
+        const labelCount = data.count === 1 ? '1 результат'
+            : data.count < 5 ? data.count + ' результата'
+            : data.count + ' результатов';
+
+        let html = '<div class="statusbar">'
+            + '<span>Найдено: ' + labelCount + '</span>'
+            + '<span>По релевантности</span>'
+            + '</div><div class="results">';
+
+        for (const r of data.results) {
+            html += '<div class="result">'
+                + '<div class="result-title"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></div>'
+                + '<div class="result-snippet">' + highlight(r.snippet, r.highlights) + '</div>'
+                + '<div class="result-score">релевантность: ' + r.score.toFixed(4) + '</div>'
+                + '</div>';
+        }
+
+        output.innerHTML = html + '</div>';
+    }
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
+    }
+
+    // Подсвечивает слова из списка highlights в тексте сниппета
+    function highlight(text, words) {
+        if (!text || !words || !words.length) return esc(text);
+        const escaped = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const re = new RegExp('(' + escaped.join('|') + ')', 'gi');
+        return esc(text).replace(re, '<mark>$1</mark>');
+    }
+
+    window.addEventListener('popstate', () => {
+        const q = new URLSearchParams(location.search).get('q');
+        if (q) { input.value = q; doSearch(); }
+        else { input.value = ''; output.innerHTML = ''; header.classList.remove('compact'); }
+    });
+</script>
+</body>
+</html>
