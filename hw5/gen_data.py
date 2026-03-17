@@ -20,7 +20,7 @@ def extract_text(html):
     for tag in soup.find_all({"script", "style", "nav", "header", "footer", "aside"}):
         tag.decompose()
     for el in soup.find_all(class_=re.compile(
-        r"menu-main|similar-recipe|banner|author-card-short|post-category|rating|comments"
+        r"menu-main|similar-recipe|banner|author-card-short|about-daria|post-category|rating|comments"
     )):
         el.decompose()
     for el in soup.find_all(id="comments"):
