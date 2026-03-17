@@ -1,5 +1,4 @@
 import json
-import sys
 from pathlib import Path
 
 import pymorphy3
@@ -17,28 +16,7 @@ def load_index(path):
     return index, all_docs
 
 
-def main():
-    if len(sys.argv) < 2:
-        print('Использование: python3 search.py "<запрос>"')
-        print('Пример: python3 search.py "курица AND рис"')
-        sys.exit(1)
-
-    query = " ".join(sys.argv[1:])
-
-    index_path = BASE_DIR / "inverted_index.json"
-    if not index_path.exists():
-        print("Ошибка: сначала запусти python3 index_builder.py")
-        sys.exit(1)
-
-    index, all_docs = load_index(index_path)
-
-    try:
-        results = search(query, index, all_docs)
-    except ValueError as e:
-        print(f"Ошибка: {e}")
-        sys.exit(1)
-
-    # Адекватное склонение слов "найден" и "документ" в зависимости от количества найденных результатов
+def print_results(results):
     if results:
         n = len(results)
         doc = morph.parse("документ")[0].make_agree_with_number(n).word
@@ -46,6 +24,38 @@ def main():
         print(f"{verb} {n} {doc}: {', '.join(sorted(results))}")
     else:
         print("Ничего не найдено")
+
+
+def main():
+    index_path = BASE_DIR / "inverted_index.json"
+    if not index_path.exists():
+        print("Ошибка: сначала запусти python3 index_builder.py")
+        return
+
+    index, all_docs = load_index(index_path)
+
+    print('Булев поиск. Операторы: AND, OR, NOT, скобки.')
+    print('Для выхода введите "exit" или нажмите Ctrl+C.\n')
+
+    while True:
+        try:
+            query = input("Запрос: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            break
+
+        if not query:
+            continue
+        if query.lower() == "exit":
+            break
+
+        try:
+            results = search(query, index, all_docs)
+            print_results(results)
+        except ValueError as e:
+            print(f"Ошибка: {e}")
+
+        print()
 
 
 if __name__ == "__main__":
