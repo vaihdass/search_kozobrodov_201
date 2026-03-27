@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/vaihdass/search_kozobrodov_201/search/internal/search"
+	"github.com/vaihdass/search_kozobrodov_201/search/internal/service/search"
 )
 
 // Result - DTO результата поиска.

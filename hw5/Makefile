@@ -1,4 +1,7 @@
-.PHONY: run build
+.PHONY: run build cli
+
+cli:
+	go run ./cmd/cli/
 
 run:
 	go run ./cmd/api/

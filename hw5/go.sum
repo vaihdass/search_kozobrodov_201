@@ -4,3 +4,5 @@ github.com/steosofficial/steosmorphy v0.0.1 h1:m96f6NvVjK5472/AgBgV0P2QmDGInzVoB
 github.com/steosofficial/steosmorphy v0.0.1/go.mod h1:fiRGh0oMZX8gbBWlaeL6HBxOIRNJcm136x9j+Tnh+CU=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e h1:fLOSk5Q00efkSvAm+4xcoXD+RRmLmmulPn5I3Y9F2EM=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
+golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
